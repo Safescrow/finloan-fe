@@ -63,11 +63,13 @@ function ProfileInfoCard({ title, description, info, action, shadow }) {
         <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
           {title}
         </MDTypography>
-        <MDTypography variant="body2" color="secondary" onClick={() => action.route()}>
-          <Tooltip title={action.tooltip} placement="top">
-            <Icon>edit</Icon>
-          </Tooltip>
-        </MDTypography>
+        {action && (
+          <MDTypography variant="body2" color="secondary" onClick={() => action.route()}>
+            <Tooltip title={action.tooltip} placement="top">
+              <Icon>edit</Icon>
+            </Tooltip>
+          </MDTypography>
+        )}
       </MDBox>
       <MDBox p={2}>
         {description && (
@@ -92,17 +94,21 @@ function ProfileInfoCard({ title, description, info, action, shadow }) {
 ProfileInfoCard.defaultProps = {
   shadow: true,
   description: "",
+  action: "",
 };
 
 // Typechecking props for the ProfileInfoCard
 ProfileInfoCard.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
-  info: PropTypes.objectOf(PropTypes.string).isRequired,
-  action: PropTypes.shape({
-    route: PropTypes.func.isRequired,
-    tooltip: PropTypes.string.isRequired,
-  }).isRequired,
+  info: PropTypes.objectOf(PropTypes.any).isRequired,
+  action: PropTypes.oneOf([
+    PropTypes.shape({
+      route: PropTypes.func.isRequired,
+      tooltip: PropTypes.string.isRequired,
+    }).isRequired,
+    PropTypes.string,
+  ]),
   shadow: PropTypes.bool,
 };
 

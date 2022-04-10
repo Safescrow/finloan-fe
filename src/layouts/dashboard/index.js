@@ -22,140 +22,165 @@ import MDBox from "components/MDBox";
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
-import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
-import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
-
-// Data
-import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
-import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 
 // Dashboard components
 import Projects from "layouts/dashboard/components/Projects";
-import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
+import { useEffect, useState } from "react";
+import { apiGet } from "utils/apiHelper";
+import MDButton from "components/MDButton";
+import { Link } from "react-router-dom";
 
 function Dashboard() {
-  const { sales, tasks } = reportsLineChartData;
+  const [loans, setLoans] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [schedule, setSchedule] = useState([]);
+  const [count, setCount] = useState(0);
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const today = new Date();
+  const month = months[today.getMonth()];
+  const year = today.getFullYear();
+
+  const getLoans = () => {
+    apiGet("/loan/unpaged", {}, true).then((res) => {
+      setLoans(res.data.data);
+    });
+  };
+
+  const getCustomers = () => {
+    apiGet("/customer/getAllCustomersUnpaginated", {}, true).then((res) => {
+      setCustomers(res.data.data);
+    });
+  };
+
+  const getSchedule = () => {
+    apiGet(`/loan/schedule?month=${month}&year=${year}`, {}, true).then((res) => {
+      setSchedule(res.data.data.pageItems);
+    });
+  };
+
+  const getScheduleTotal = () => {
+    apiGet(`/loan/schedule-count?month=${month}&year=${year}`, {}, true).then((res) => {
+      setCount(res.data.data);
+    });
+  };
+
+  const loanBalance = loans.reduce((acc, item) => acc + item.balance, 0);
+
+  useEffect(() => {
+    getLoans();
+    getCustomers();
+    getSchedule();
+    getScheduleTotal();
+  }, []);
+  const columns = [
+    { Header: "customer name", accessor: "name", align: "left" },
+    { Header: "MDA", accessor: "mda", align: "left" },
+    { Header: "amount", accessor: "amount", align: "right" },
+  ];
+
+  const rows = schedule?.map((sch) => ({
+    name: `${sch.firstName} ${sch.middleName === null ? "" : sch.middleName} ${sch.lastName}`,
+    amount: (sch?.amount).toLocaleString("en-NG", { style: "currency", currency: "NGN" }),
+    mda: sch?.mda,
+  }));
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
+      <MDBox pt={6} pb={3}>
+        <Grid container mb={2}>
+          <Grid item xs={12} md={4} lg={3} mr={2}>
+            <MDButton
+              component={Link}
+              to="/customers/new-customer"
+              lg={4}
+              variant="gradient"
+              type="submit"
+              color="info"
+              fullWidth
+            >
+              New Customer
+            </MDButton>
+          </Grid>
+          <Grid item xs={12} md={4} lg={3}>
+            <MDButton
+              component={Link}
+              to="/applications/new-application"
+              lg={4}
+              variant="gradient"
+              type="submit"
+              color="primary"
+              fullWidth
+            >
+              New Loan Application
+            </MDButton>
+          </Grid>
+        </Grid>
+      </MDBox>
       <MDBox py={3}>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={4}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="dark"
-                icon="weekend"
-                title="Bookings"
-                count={281}
+                icon="attach_money"
+                title="Active Loan Value"
+                count={loanBalance.toLocaleString("en-NG", { style: "currency", currency: "NGN" })}
                 percentage={{
-                  color: "success",
-                  amount: "+55%",
-                  label: "than lask week",
+                  label: "Total volume of active loans",
                 }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={4}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
-                icon="leaderboard"
-                title="Today's Users"
-                count="2,300"
+                icon="currency_exchange"
+                title="Due Loans"
+                count={count.toLocaleString("en-NG", { style: "currency", currency: "NGN" })}
                 percentage={{
-                  color: "success",
-                  amount: "+3%",
-                  label: "than last month",
+                  label: "Total loans due for this month",
                 }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={4}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="success"
-                icon="store"
-                title="Revenue"
-                count="34k"
+                icon="people"
+                title="Customers"
+                count={customers.length}
                 percentage={{
-                  color: "success",
-                  amount: "+1%",
-                  label: "than yesterday",
-                }}
-              />
-            </MDBox>
-          </Grid>
-          <Grid item xs={12} md={6} lg={3}>
-            <MDBox mb={1.5}>
-              <ComplexStatisticsCard
-                color="primary"
-                icon="person_add"
-                title="Followers"
-                count="+91"
-                percentage={{
-                  color: "success",
-                  amount: "",
-                  label: "Just updated",
+                  label: "Total number of customers",
                 }}
               />
             </MDBox>
           </Grid>
         </Grid>
-        <MDBox mt={4.5}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={4}>
-              <MDBox mb={3}>
-                <ReportsBarChart
-                  color="info"
-                  title="website views"
-                  description="Last Campaign Performance"
-                  date="campaign sent 2 days ago"
-                  chart={reportsBarChartData}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <MDBox mb={3}>
-                <ReportsLineChart
-                  color="success"
-                  title="daily sales"
-                  description={
-                    <>
-                      (<strong>+15%</strong>) increase in today sales.
-                    </>
-                  }
-                  date="updated 4 min ago"
-                  chart={sales}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <MDBox mb={3}>
-                <ReportsLineChart
-                  color="dark"
-                  title="completed tasks"
-                  description="Last Campaign Performance"
-                  date="just updated"
-                  chart={tasks}
-                />
-              </MDBox>
-            </Grid>
-          </Grid>
-        </MDBox>
         <MDBox>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
-              <Projects />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <OrdersOverview />
+            <Grid item xs={12} md={12} lg={12}>
+              <Projects data={{ columns, rows }} />
             </Grid>
           </Grid>
         </MDBox>
       </MDBox>
-      <Footer />
     </DashboardLayout>
   );
 }

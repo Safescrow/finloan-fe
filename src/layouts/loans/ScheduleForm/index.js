@@ -67,7 +67,7 @@ export default function Overview({ onClose }) {
     ).then(
       (res) => {
         saveAsCsv({
-          data: res.data.data.pageItems,
+          data: res.data.data,
           fields,
           filename: `${scheduleDetails.mda}-${
             months[new Date(scheduleDetails.schedulePeriod).getMonth()]

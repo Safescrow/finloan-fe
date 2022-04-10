@@ -61,6 +61,7 @@ import ForgotPassword from "layouts/authentication/forgot-password";
 import ResetPassword from "layouts/authentication/reset-password";
 import Customer from "layouts/customer";
 import Application from "layouts/application";
+import Loan from "layouts/loan";
 import NewCustomer from "layouts/create-customer";
 import NewApplication from "layouts/new-application";
 import BasicApplication from "layouts/new-application/components/Basic";
@@ -172,7 +173,7 @@ export default function App() {
             <Sidenav
               color={sidenavColor}
               brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-              brandName="Material Dashboard 2"
+              brandName="FinLoan"
               routes={routes}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
@@ -198,7 +199,7 @@ export default function App() {
             <Sidenav
               color={sidenavColor}
               brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-              brandName="Material Dashboard 2"
+              brandName="FinLoan"
               routes={routes}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
@@ -222,6 +223,7 @@ export default function App() {
           </Route>
           <Route path="/customers/:customerId" element={<Customer />} />
           <Route path="/applications/:applicationId" element={<Application />} />
+          <Route path="/loans/:loanId" element={<Loan />} />
           <Route path="/authentication/sign-in" element={<SignIn />} />
           <Route path="/authentication/forgot-password" element={<ForgotPassword />} />
           <Route path="/auth/reset-password" element={<ResetPassword />} />

@@ -28,7 +28,7 @@ import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 
 // Authentication layout components
-import BasicLayout from "layouts/authentication/components/BasicLayout";
+import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Images
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
@@ -60,7 +60,7 @@ function Basic() {
   }, []);
 
   return (
-    <BasicLayout image={bgImage}>
+    <CoverLayout image={bgImage}>
       <Card>
         <MDBox
           variant="gradient"
@@ -122,7 +122,7 @@ function Basic() {
           </MDBox>
         </MDBox>
       </Card>
-    </BasicLayout>
+    </CoverLayout>
   );
 }
 

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import AuthContext from "./AuthContext";
 import { apiPost } from "../../utils/apiHelper";
 import AuthReducer from "./AuthReducer";
-import { LOGIN_SUCCESS, LOGIN_FAIL, LOADING, CONFIRM_EMAIL } from "../types";
+import { LOGIN_SUCCESS, LOGIN_FAIL, LOADING, CONFIRM_EMAIL, LOGOUT } from "../types";
 
 // AuthState Provider Component
 
@@ -65,6 +65,13 @@ const AuthState = ({ children }) => {
     }
   };
 
+  const logout = () => {
+    dispatch({
+      type: LOGOUT,
+      payload: true,
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -72,6 +79,7 @@ const AuthState = ({ children }) => {
         isAuthenticated: state.isAuthenticated,
         user: state.user,
         loading: state.loading,
+        logout,
         error: state.error,
         state,
       }}

@@ -2,6 +2,7 @@ import { Box, Card, Grid, Modal } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
 import MDTypography from "components/MDTypography";
+import { useAuth } from "context/auth/AuthState";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import DataTable from "examples/Tables/DataTable";
@@ -15,6 +16,10 @@ export default function index() {
   const [loans, setLoans] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [modalItem, setModalItem] = useState("");
+
+  const {
+    user: { role },
+  } = useAuth();
 
   useEffect(() => {
     apiGet("/Loan", {}, true).then((res) => {
@@ -48,6 +53,8 @@ export default function index() {
     { Header: "customer name", accessor: "customerName", align: "left" },
     { Header: "loan amount", accessor: "loanAmount", align: "right" },
     { Header: "balance", accessor: "balance", align: "right" },
+    { Header: "no. paid", accessor: "numberPaid", align: "center" },
+    { Header: "no. pending", accessor: "numberPending", align: "center" },
     { Header: "commencement date", accessor: "commencementDate", align: "center" },
     { Header: "end date", accessor: "endDate", align: "center" },
     { Header: "action", accessor: "action", align: "center" },
@@ -59,6 +66,8 @@ export default function index() {
     } ${loan?.customer?.lastName}`,
     loanAmount: loan.loanAmount.toLocaleString("en-NG", { style: "currency", currency: "NGN" }),
     balance: loan.balance.toLocaleString("en-NG", { style: "currency", currency: "NGN" }),
+    numberPaid: loan.schedule.filter((s) => s.paymentStatus).length,
+    numberPending: loan.schedule.filter((s) => !s.paymentStatus).length,
     commencementDate: new Date(loan.commencementDate).toLocaleDateString("en-NG"),
     endDate: new Date(loan.endDate).toLocaleDateString("en-NG"),
     action: <Action id={loan.applicationId} />,
@@ -91,18 +100,23 @@ export default function index() {
               Download Payment Schedule
             </MDButton>
           </Grid>
-          <Grid item xs={12} md={4} lg={3}>
-            <MDButton
-              lg={4}
-              variant="gradient"
-              type="submit"
-              color="primary"
-              fullWidth
-              onClick={() => toggleModal("paymentForm")}
-            >
-              New Batch Payment
-            </MDButton>
-          </Grid>
+          {role === "SuperAdmin" ||
+            ("Manager" && (
+              <>
+                <Grid item xs={12} md={4} lg={3} mr={2}>
+                  <MDButton
+                    lg={4}
+                    variant="gradient"
+                    type="submit"
+                    color="primary"
+                    fullWidth
+                    onClick={() => toggleModal("paymentForm")}
+                  >
+                    New Batch Payment
+                  </MDButton>
+                </Grid>
+              </>
+            ))}
           <Modal open={showModal} onClose={closeModal} aria-labelledby="modal-modal-title">
             <Box sx={style}>{modalContent}</Box>
           </Modal>

@@ -10,6 +10,7 @@ import mdas from "assets/mda.json";
 import { toast } from "react-toastify";
 import MDButton from "components/MDButton";
 import dayjs from "dayjs";
+import { useAuth } from "context/auth/AuthState";
 
 export default function Overview({ id, onClose }) {
   const [customerEmployment, setCustomerEmployment] = useState({
@@ -25,6 +26,9 @@ export default function Overview({ id, onClose }) {
   });
 
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const {
+    user: { role },
+  } = useAuth();
 
   const [loading, setLoading] = useState(false);
 
@@ -240,32 +244,36 @@ export default function Overview({ id, onClose }) {
               fullWidth
             />
           </MDBox>
-          <MDBox mb={2}>
-            <MDInput
-              type="date"
-              label="Date of First Appointment"
-              name="dateOfFirstAppointment"
-              variant="standard"
-              value={dayjs(dateOfFirstAppointment).format("YYYY-MM-DD")}
-              fullWidth
-              onChange={(e) => {
-                handleChange(e);
-                calculateRetirement(e.target.value);
-              }}
-            />
-          </MDBox>
-          <MDBox mb={2}>
-            <MDInput
-              name="retirementDate"
-              type="date"
-              onChange={handleChange}
-              value={dayjs(retirementDate).format("YYYY-MM-DD")}
-              variant="standard"
-              label="Retirement Date"
-              fullWidth
-              disabled
-            />
-          </MDBox>
+          {role !== "SuperAdmin" && (
+            <>
+              <MDBox mb={2}>
+                <MDInput
+                  type="date"
+                  label="Date of First Appointment"
+                  name="dateOfFirstAppointment"
+                  variant="standard"
+                  value={dayjs(dateOfFirstAppointment).format("YYYY-MM-DD")}
+                  fullWidth
+                  onChange={(e) => {
+                    handleChange(e);
+                    calculateRetirement(e.target.value);
+                  }}
+                />
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  name="retirementDate"
+                  type="date"
+                  onChange={handleChange}
+                  value={dayjs(retirementDate).format("YYYY-MM-DD")}
+                  variant="standard"
+                  label="Retirement Date"
+                  fullWidth
+                  disabled
+                />
+              </MDBox>
+            </>
+          )}
           <MDBox mb={2}>
             <MDInput
               name="confirmationLetterFile"

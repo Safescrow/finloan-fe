@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { LOGIN_SUCCESS, LOGIN_FAIL, LOADING, CONFIRM_EMAIL } from "../types";
+import { LOGIN_SUCCESS, LOGIN_FAIL, LOADING, CONFIRM_EMAIL, LOGOUT } from "../types";
 
 export default function authReducer(state, action) {
   switch (action.type) {
@@ -38,6 +38,15 @@ export default function authReducer(state, action) {
           autoClose: 10000,
         }
       );
+      return {
+        ...state,
+        isAuthenticated: false,
+        loading: false,
+      };
+    case LOGOUT:
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/authentication/sign-in";
       return {
         ...state,
         isAuthenticated: false,

@@ -15,7 +15,6 @@ Coded by www.creative-tim.com
 
 // @mui material components
 import Grid from "@mui/material/Grid";
-import Modal from "@mui/material/Modal";
 // import Divider from "@mui/material/Divider";
 
 // Material Dashboard 2 React components
@@ -33,55 +32,22 @@ import Header from "layouts/loan/components/Header";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { apiGet } from "utils/apiHelper";
-import { Box, Card } from "@mui/material";
-import MDButton from "components/MDButton";
-import { useAuth } from "context/auth/AuthState";
+import { Card } from "@mui/material";
 
 import MDTypography from "components/MDTypography";
 import DataTable from "examples/Tables/DataTable";
-import UpdateGuarantor from "./components/UpdateGuarantor";
-import UpdateApplication from "./components/UpdateApplication";
-import ApprovalForm from "./components/ApprovalForm";
 
 function Overview() {
   const [loan, setLoan] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const [modalItem, setModalItem] = useState(null);
 
   const { loanId } = useParams();
 
-  const {
-    guarantor,
-    customer,
-    amount,
-    category,
-    tenure,
-    interestRate,
-    lastPaySlip,
-    createdAt,
-    schedule,
-    loanAmount,
-    application,
-  } = loan;
-
-  const toggleModal = (item) => {
-    setShowModal(true);
-    setModalItem(item);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setModalItem(null);
-  };
-
-  const { user } = useAuth();
+  const { customer, schedule, loanAmount, balance, application, commencementDate, endDate } = loan;
 
   const getApplication = async () => {
-    await apiGet(`/loan/${loanId}`, {}, true).then(
-      (res) => {
-        setLoan(res.data.data);
-      }
-    );
+    await apiGet(`/loan/${loanId}`, {}, true).then((res) => {
+      setLoan(res.data.data);
+    });
   };
 
   useEffect(() => {
@@ -90,54 +56,21 @@ function Overview() {
 
   const columns = [
     { Header: "month", accessor: "month", align: "left" },
+    { Header: "year", accessor: "year", align: "left" },
     { Header: "amount", accessor: "amount", align: "right" },
     { Header: "status", accessor: "status", align: "center" },
+    { Header: "payment ref", accessor: "paymentRef", align: "left" },
+    { Header: "payment date", accessor: "paymentDate", align: "center" },
   ];
 
   const rows = schedule?.map((sch) => ({
     month: sch?.month,
+    year: sch?.year,
     amount: (sch?.amount).toLocaleString("en-NG", { style: "currency", currency: "NGN" }),
     status: sch?.paymentStatus ? "Paid" : "Pending",
+    paymentRef: sch?.paymentRef ? sch.paymentRef : "",
+    paymentDate: sch?.paymentStatus ? new Date(sch.paymentDate).toLocaleDateString("en-NG") : "",
   }));
-
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    boxShadow: 24,
-  };
-
-  let modalContent;
-  switch (modalItem) {
-    case "guarantor":
-      modalContent = <UpdateGuarantor applicationId={loanId} onClose={() => closeModal()} />;
-      break;
-    case "application":
-      modalContent = (
-        <UpdateApplication applicationId={loanId} onClose={() => closeModal()} />
-      );
-      break;
-    case "lineManager":
-      modalContent = (
-        <ApprovalForm
-          applicationId={loanId}
-          onClose={() => closeModal()}
-          type="lineManager"
-        />
-      );
-      break;
-    case "manager":
-      modalContent = (
-        <ApprovalForm applicationId={loanId} onClose={() => closeModal()} type="manager" />
-      );
-      break;
-    default:
-      modalContent = null;
-      break;
-  }
 
   return (
     <DashboardLayout>
@@ -148,30 +81,6 @@ function Overview() {
         passportUrl={customer?.passportUrl}
       >
         <MDBox mt={5} mb={3}>
-          <MDButton
-            lg={4}
-            variant="gradient"
-            type="button"
-            color="info"
-            disabled={user.role !== "LineManager" || loan.lineManagerApproval === "Approved"}
-            onClick={() => toggleModal("lineManager")}
-          >
-            Line Manager Approval
-          </MDButton>
-          <MDButton
-            lg={4}
-            variant="gradient"
-            type="button"
-            color="primary"
-            disabled={
-              user.role !== "Manager" ||
-              loan.managerApproval === "Approved" ||
-              loan.lineManagerApproval !== "Approved"
-            }
-            onClick={() => toggleModal("manager")}
-          >
-            Manager Approval
-          </MDButton>
           <Grid container spacing={1}>
             <Grid item xs={12} md={6} xl={6}>
               <ProfileInfoCard
@@ -183,35 +92,31 @@ function Overview() {
                   email: customer?.email,
                   "Phone Number": customer?.phoneNumber,
                   "created At": new Date(customer?.createdAt).toLocaleDateString("en-NG"),
-                  "created By": `${customer?.createdBy?.firstName} ${customer?.createdBy?.lastName}`,
+                  // "created By": `${customer?.createdBy?.firstName} ${customer?.createdBy?.lastName}`,
                 }}
-                action={{ route: () => {}, tooltip: "Edit Customer Details" }}
                 shadow={false}
               />
             </Grid>
             <Grid item xs={12} md={6} xl={6}>
               <ProfileInfoCard
-                title="Application Details"
+                title="Loan Details"
                 info={{
-                  "application Date": new Date(createdAt).toLocaleDateString("en-NG"),
+                  "commencement Date": new Date(commencementDate).toLocaleDateString("en-NG"),
+                  "end Date": new Date(endDate).toLocaleDateString("en-NG"),
                   amount:
-                    amount &&
-                    amount.toLocaleString("en-NG", { style: "currency", currency: "NGN" }),
-                  category,
-                  tenure: `${tenure} Months`,
-                  "interest Rate": `${interestRate}%`,
-                  "Last Payslip": lastPaySlip && <a href={lastPaySlip}>View</a>,
-                }}
-                action={{
-                  route: () => {
-                    toggleModal("application");
-                  },
-                  tooltip: "Edit Application Details",
+                    loanAmount &&
+                    loanAmount.toLocaleString("en-NG", { style: "currency", currency: "NGN" }),
+                  balance:
+                    balance &&
+                    balance.toLocaleString("en-NG", { style: "currency", currency: "NGN" }),
+                  category: application?.category,
+                  tenure: `${application?.tenure} Months`,
+                  "interest Rate": `${application?.interestRate}%`,
                 }}
                 shadow={false}
               />
             </Grid>
-            <Grid item xs={12} md={6} xl={6}>
+            {/* <Grid item xs={12} md={6} xl={6}>
               <ProfileInfoCard
                 title="Guarantor Details"
                 info={{
@@ -230,8 +135,8 @@ function Overview() {
                 }}
                 shadow={false}
               />
-            </Grid>
-            <Grid item xs={12} md={6} xl={6}>
+            </Grid> */}
+            <Grid item xs={12} md={12} xl={12} mt={4}>
               <Card>
                 <MDBox
                   mx={2}
@@ -264,9 +169,6 @@ function Overview() {
         </MDBox>
       </Header>
       <Footer />
-      <Modal open={showModal} onClose={closeModal} aria-labelledby="modal-modal-title">
-        <Box sx={style}>{modalContent}</Box>
-      </Modal>
     </DashboardLayout>
   );
 }

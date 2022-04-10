@@ -10,6 +10,7 @@ import states from "assets/ng.states.json";
 import { toast } from "react-toastify";
 import MDButton from "components/MDButton";
 import dayjs from "dayjs";
+import { useAuth } from "context/auth/AuthState";
 
 export default function Overview({ id, onClose }) {
   const [customerData, setCustomerData] = useState({
@@ -25,6 +26,9 @@ export default function Overview({ id, onClose }) {
   });
   const [lgas, setLgas] = useState([]);
   const [loading, setLoading] = useState(false);
+  const {
+    user: { role },
+  } = useAuth();
 
   const {
     dateOfBirth,
@@ -104,17 +108,19 @@ export default function Overview({ id, onClose }) {
       </MDBox>
       <MDBox pt={4} pb={3} px={3}>
         <MDBox component="form" role="form" onSubmit={handleSubmit}>
-          <MDBox mb={2}>
-            <MDInput
-              type="date"
-              label="Date of Birth"
-              name="dateOfBirth"
-              variant="standard"
-              value={dayjs(dateOfBirth).format("YYYY-MM-DD")}
-              fullWidth
-              onChange={handleChange}
-            />
-          </MDBox>
+          {role !== "SuperAdmin" && (
+            <MDBox mb={2}>
+              <MDInput
+                type="date"
+                label="Date of Birth"
+                name="dateOfBirth"
+                variant="standard"
+                value={dayjs(dateOfBirth).format("YYYY-MM-DD")}
+                fullWidth
+                onChange={handleChange}
+              />
+            </MDBox>
+          )}
           <MDBox mb={2}>
             <MDSelect
               name="gender"

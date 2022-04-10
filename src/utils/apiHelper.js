@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const baseUrl = "https://localhost:44353/api";
+const baseUrl = "https://finloan.herokuapp.com/api";
 export const apiGet = (path, { headers, ...conf }, auth = true) =>
   new Promise((resolve, reject) => {
     const Authorization = auth && `Bearer ${localStorage.getItem("token")}`;

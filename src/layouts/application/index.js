@@ -183,7 +183,6 @@ function Overview() {
                   "created At": new Date(customer?.createdAt).toLocaleDateString("en-NG"),
                   "created By": `${customer?.createdBy?.firstName} ${customer?.createdBy?.lastName}`,
                 }}
-                action={{ route: () => {}, tooltip: "Edit Customer Details" }}
                 shadow={false}
               />
             </Grid>

@@ -46,12 +46,15 @@ import {
   setTransparentSidenav,
   setWhiteSidenav,
 } from "context";
+import { useAuth } from "context/auth/AuthState";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
+
+  const { logout } = useAuth();
 
   let textColor = "white";
 
@@ -180,16 +183,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       />
       <List>{renderRoutes}</List>
       <MDBox p={2} mt="auto">
-        <MDButton
-          component="a"
-          href="https://www.creative-tim.com/product/material-dashboard-pro-react"
-          target="_blank"
-          rel="noreferrer"
-          variant="gradient"
-          color={sidenavColor}
-          fullWidth
-        >
-          upgrade to pro
+        <MDButton variant="gradient" color={sidenavColor} fullWidth onClick={() => logout()}>
+          logout
         </MDButton>
       </MDBox>
     </SidenavRoot>
