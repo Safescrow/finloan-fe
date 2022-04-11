@@ -12,7 +12,6 @@
     "type": "git",
     "url": "git+https://github.com/Safescrow/finloan-fe.git"
   },
-  "homepage": "https://safescrow.github.com/finloan-fe",
   "dependencies": {
     "@emotion/cache": "11.4.0",
     "@emotion/react": "11.4.1",
